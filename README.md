@@ -91,9 +91,7 @@ two major areas:
     use slices where applicable
 
 ### JS builtins' implementations
-formed according to the sources listed in the bottom of the document or benchmarks taken on my machine (Firefox)
-
-- File object is okay, perf-wise, as Map key ?
+formed according to various dev blogs, API docs or benchmarks taken on my machine (Firefox)
 
 - TypedArrays are at least as optimized as arrays of ints
 
@@ -118,7 +116,6 @@ formed according to the sources listed in the bottom of the document or benchmar
 <100KB file per student
 ~8 MB total.
 benchmark primarily against 1MB file
-also 1 GB file, for fun
 
 <10 equivalence classes per problem
 Highly clustered semantic equivalence classes
@@ -225,46 +222,3 @@ for key k in intersection:
   if k == LEAF_NODE_KEY:
     a[k] or b[k] has the goods.
   match(a[k], b[k], result_array)
-
-
-
-## referenced sources
-https://stackoverflow.com/questions/14155310/upload-file-as-string-to-javascript-variable
-https://developer.mozilla.org/en-US/docs/Web/API/File/name
-
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_Generators
-
-https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays
-
-https://stackoverflow.com/questions/3746725/how-to-create-an-array-containing-1-n
-
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
-https://stackoverflow.com/questions/4622808/html-changing-colors-of-specific-words-in-a-string-of-text
-https://www.rapidtables.com/web/color/brown-color.html
-https://bretcameron.medium.com/how-javascript-maps-can-make-your-code-faster-90f56bf61d9d
-https://stackoverflow.com/questions/65886472/why-is-getting-from-map-slower-than-getting-from-object?noredirect=1&lq=1
-https://v8.dev/blog/fast-properties
-
-https://v8.dev/blog/elements-kinds
-
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/imul
-
-https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML
-https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Safely_inserting_external_content_into_a_page
-
-https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select
-https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/disabled
-
-https://www.w3schools.com/jsref/prop_select_value.asp
-
-https://stackoverflow.com/questions/6055412/center-text-in-div
-
-https://stackoverflow.com/questions/12597897/how-do-i-make-a-table-scrollable
-
-https://stackoverflow.com/questions/13183982/html-entity-for-check-mark
-
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining
-
