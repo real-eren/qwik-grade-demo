@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+  <body style="background-color:#ffffdb;">
+
+<!-- https://code-boxx.com/keep-html-elements-on-same-line/ -->
+<style>
+.wrap-flex {
+  display: flex;
+  align-items: stretch;
+}
+
+.vbox {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.hbox {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+
+span.rkt-id { color: #af00ff; }
+
+span.rkt-cmnt { color: #aea847; }
+
+span.rkt-err { color: #ff0000; }
+
+span.rkt-int { color: #aa5a00; }
+
+span.rkt-str { color: #00aa00; }
+
+span.rkt-kw { color: #5e3817; }
+
+span.rkt-macro {
+  color: #10a0FF;
+  font-weight: bolder;
+}
+.yscroll {
+  overflow-y: scroll;
+  padding: 2px 4px;
+  flex: 1 1 auto;
+  border: 1px solid black;
+  white-space: pre-wrap;
+  font-family: monospace;
+}
+
+.height90 { height: 90vh; }
+.height30 { height: 30vh; }
+.height20 { height: 20vh; }
+.height10 { height: 10vh; }
+
+.height-rest { height: 100%; }
+
+.half-wide { width: 50%; }
+
+.centered-text { text-align: center; }
+.centering-container { 
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+ <!-- WIP: make the div fill the page properly -->
+ <!-- I spent about 3 hours tinkering with CSS to no avail just to learn that you can't put this kind of comment in CSS -->
+  <!-- flex: 1 1 auto; -->
+</style>
+<div class="hbox" style="padding: 0px 5px 0px 5px;">
+
+  <div class="vbox half-wide">
+    <form id="file_upload" style="position: relative;height:100%;">
+
+      <div class="hbox">
+        <input id="upload_button" name="files[]" multiple type="file" title="upload files from your computer" />
+        <button id="remove_current_file_button" type="button" style="font-size:10px;" title="Clear the current file. Also removes all associated comments">Remove current file</button>
+        <button id="remove_all_files_button" type="button" style="font-size:10px;" title="Clear all uploaded files. Also removes all groups and comments">Remove all files</button>
+      </div>
+
+      <div class="hbox">
+        <button id="prev_file_button" type="button" title="cycles to the previous file">Prev</button>
+        <select id="current_file_name_drop_down" title="Select a file to view"></select>
+        <div id="current_file_name_div" title="name of the file currently being viewed">No file selected</div>
+        <button id="next_file_button" type="button" title="cycles to the next file">Next</button>
+      </div>
+
+      <div id="divtext" class="yscroll height90">
+  Nothing loaded<span style="color:#ff4444"> yet</span> =)
+      </div>
+
+    </form>
+  </div>
+
+  <div class="vbox" style="width:50%;">
+    
+    <div>
+      <label for="selected_text" title="the text selected. Can be manually edited after locking">selected text</label>
+      <textarea id="selected_text" style="width:100%;">
+      </textarea>
+    </div>
+ 
+    <div class="hbox">
+      <button id="lock_selection_button" type="button" title="When locked: selected text will no longer auto-update when clicking and dragging the mouse.
+Locking also allows you to type in the text box.">lock selection</button>
+      <button id="lookup_definition_button" type="button" title="within the current file, look for a top-level definition with a name matching the string in the 'selected text' box. Only works for file types with parsing support - currently Racket">lookup definition</button>
+      <select id="selection_type_dropdown" title="how to interpret the selected text. Special lexing support for 'Racket'">
+        <option>Text</option>
+        <option>Racket</option>
+      </select>
+    </div>
+
+    <hr style="width: 100%">
+
+    <div class="hbox">
+      <label for="new_group_name_input">new group name:</label>
+      <textarea id="new_group_name_input" title="name for a new group. Cannot be empty or match an existing group"></textarea>
+      <button id="create_group_button" type="button" disabled title="Create a new group from the selected text and with the given name. Group name cannot be empty.">Create New Group</button>
+    </div>
+
+    <hr style="width: 100%">
+
+    <div class="hbox">
+      Selected Group:
+      <select id="current_group_dropdown" title="Dropdown menu for selecting a group. 'Just this file' means no group at all. Comments made under 'Just this file' only apply to the current file.">
+        <option value="N/A">Just this file</option>
+      </select>
+      <button id="delete_group_button" title="Remove the selected group. Also deletes associated comments. Disabled if selected group is 'Just this file'" type="button">Delete Group</button>
+      <button id="add_to_group_button" title="Add or remove the current file from the selected group. Disabled if no current file or if selected group is 'Just this file'" type="button">Add File to Group</button>
+    </div>
+
+    <hr style="width: 100%">
+
+    <div class="vbox">
+      <label for="comment_text" class="centered-text">comment</label>
+      <textarea id="comment_text" style="width:100%;height:50%;" title="Write a comment for the selected group. Disabled if comment text is empty, or if 'Just this file' is selected while no files are uploaded."></textarea>
+      <button id="submit_comment_button" type="button" disabled title="adds this comment to the selected group, or just this file if group is 'Just this file'">enter comment for group (or file)</button>
+    </div>
+
+    <hr style="width: 100%">
+
+    <!-- scroll through comments for a group (dropdown is above) -->
+    <div class="vbox">
+      <select id="comment_display_mode_dropdown" class="centered-text" title="Select whether to display comments for the current group or the current file">
+        <option>Comments for selected file</option>
+        <option>Comments for selected group</option>
+      </select>
+      <div id="scroll_div_for_comments" class="yscroll height10">
+
+      <!-- just a scrollable list of 2 columns [snippet, comment] -->
+      </div>
+    </div>
+
+    <hr style="width: 100%">
+
+    <!-- Scroll through Files in group or group in file -->
+    <div class="vbox">
+      <select id="file_group_membership_mode_dropdown" class="centered-text" title="Which direction of membership to display.">
+        <option>Groups this file belongs to</option>
+        <option>Files that belong to this group</option>
+      </select>
+      <div id="scroll_div_for_file_group_membership" class="yscroll height10">
+      </div>
+
+    </div>
+
+    <hr style="width: 100%">
+
+    <!-- click button to find matches, cycle through them, accept or reject one-by-one -->
+    <!-- display one at a time -->
+    <div class="vbox">
+      <div class="centering-container">
+
+        <div class="hbox">
+          <button id="find_matches_button" type="button" title="search the current file for matches against the snippets of the defined groups. Disabled if no file selected">
+            Search for matches
+          </button>
+          <div class="vbox">
+            <button
+              id="accept_match_button"
+              type="button"
+              disabled
+              title="accept the current suggested match"
+              style="color:white; background-color: green;"
+              >
+              Accept match
+            </button>
+            <button
+              id="reject_match_button"
+              type="button"
+              disabled
+              title="reject the current suggested match"
+              style="color: white; background-color: red;"
+              >
+              Reject match
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="file_name_for_suggestions" class="centered-text" title="The file for which the below suggestions apply">N/A</div>
+      <div id="match_data" class="hbox">
+        <!-- scroll divs for snippet and match fns -->
+        <div class="half-wide vbox">
+          <label for="scroll_div_for_match_snippet" id="match_snippets_label" class="centered-text" title="The snippet of code associated with the group">Matching Snippet</label>
+          <div id="scroll_div_for_match_snippet" class="yscroll height20"> </div>
+        </div>
+        <div class="half-wide vbox">
+          <label for="scroll_div_for_func_name_list" class="centered-text">Definitions with matches</label>
+          <div id="scroll_div_for_func_name_list" class="yscroll height20"> </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Deferred: list files with exact same group membership -->
+    <!-- <div id="def_list"> -->
+    <!-- </div> -->
+
+  </div>
+</div>
+
+<script src="myscript.js"></script>
+  </body>
+</html>
