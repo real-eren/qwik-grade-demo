@@ -973,20 +973,76 @@ const filename_to_html = new Map();
 const filename_to_top_level_defs = new Map();
 const filename_to_trie = new Map();
 
-/** name -> ['comments'] */
+/** name -> set{'comments'} */
 const group_name_to_comments = new Map();
 // double index to make lookups in both directions faster
 // "name" -> set{ 'groupnames' }
 const filename_to_groups = new Map();
 // "name" -> set{ 'filenames' }
 const group_to_filenames = new Map();
-// "name" -> list of file-specific comments
+// "name" -> set{'comments'} // file-specific comments
 const filename_to_comments = new Map();
 
 // "name" -> [lexemes]
 // only for groups made from snippets in supported formats (Racket atm)
 const group_name_to_seq = new Map();
 const group_name_to_snippet = new Map();
+
+/**
+  expects data = {
+    group_name_to_comments: [ ["grp", ["comments"]] ],
+    filename_to_groups: [ ["file", ["grp names"]] ],
+    group_to_filenames: [ ["grp", ["file names"]] ],
+    filename_to_comments: [ ["file", ["comments"]] ],
+    group_name_to_snippet: [ ["grp", "snippet"] ],
+  }
+other
+*/
+const __group_data_mapping = {
+  "group_name_to_comments": group_name_to_comments,
+  "filename_to_groups": filename_to_groups,
+  "group_to_filenames": group_to_filenames,
+  "filename_to_comments": filename_to_comments
+};
+
+function import_group_data(data) {
+  function import_helper(map, input) {
+    // input is an array of [ "key", ["set vals"]]
+    for (const [key, set_vals] of input) {
+      map.set(key, new Set(set_vals));
+    }
+  }
+  for (let [key, val] of Object.entries(__group_data_mapping)) {
+    import_helper(val, data[key]);
+  }
+  for (const [k, v] of data["group_name_to_snippet"]) {
+    group_name_to_snippet.set(k, v);
+    group_name_to_seq.set(k, parse_string(v, PARSE_MODE_SNIPPET));
+  }
+
+  for (const group_name of group_name_to_comments.keys()) {
+    const new_option = document.createElement("option");
+    new_option.text = group_name;
+    current_group_dropdown.add(new_option);
+    selected_group_name_array.push(group_name);
+  }
+
+  recalculate_combined_group_trie();
+}
+// Map<String, Set<String>>  =>  [ [String, [String]] ]
+// isn't it nice how the type signature describes the function
+function multimap_to_array(multimap) {
+  // extra copy but meh
+  return Array.from(multimap.entries(), ([k, v]) => [k, Array.from(v.values())]);
+}
+function export_group_data() {
+  const result = {};
+  for (let [k, v] of Object.entries(__group_data_mapping)) {
+    result[k] = multimap_to_array(v);
+  }
+  result["group_name_to_snippet"] = Array.from(group_name_to_snippet.entries());
+  return result;
+}
 
 // trie of group seqs to group names
 const combined_group_trie = new Map();
@@ -1072,8 +1128,9 @@ create_group_button.addEventListener("click", (event) => {
   selected_group_name_array.push(new_name);
   current_group_dropdown.selectedIndex = current_group_dropdown.options.length - 1;
 
-  group_name_to_comments.set(new_name, []);
-  group_to_filenames.set(new_name, new Set());
+  for (const map of [group_name_to_comments, group_to_filenames]) {
+    if (! map.has(new_name)) map.set(new_name, new Set());
+  }
 
   if (selection_type_dropdown.value === "Racket") {
     const snippet = doc_selected_text.value;
@@ -1251,6 +1308,20 @@ remove_current_file_button.addEventListener("click", (event) => {
   update_ui_for_current_file();
 });
 
+const import_session_button = document.getElementById("import_session_button");
+import_session_button.addEventListener("click", (event) => {
+  const file_text = filename_to_original_text.get(get_current_file().name);
+  const obj = JSON.parse(file_text);
+  import_group_data(obj);
+});
+
+const export_session_button = document.getElementById("export_session_button");
+export_session_button.addEventListener("click", (event) => {
+  doc_current_file_text_div.textContent = "current session data";
+  doc_divtext.innerHTML = JSON.stringify(export_group_data(), null, 2);
+});
+
+
 const doc_filepicker = document.getElementById('upload_button');
 doc_filepicker.addEventListener("change", (event) => { 
   if (!window.FileReader) {
@@ -1271,8 +1342,9 @@ doc_filepicker.addEventListener("change", (event) => {
       }
 
       filename_to_file.set(fname, file);
-      filename_to_groups.set(fname, new Set());
-      filename_to_comments.set(fname, []);
+      for (let map of [filename_to_groups, filename_to_comments]) {
+        if (! map.has(fname)) map.set(fname, new Set());
+      }
 
       let reader = new FileReader();
       reader.addEventListener(
@@ -1368,10 +1440,10 @@ submit_comment_button.addEventListener("click", (event) => {
   // also, if group idx is 0, this button is disabled if no files uploaded
   if (current_group_dropdown.selectedIndex === 0) {
     const cur_filename = get_current_file().name;
-    filename_to_comments.get(cur_filename).push(comment_text);
+    filename_to_comments.get(cur_filename).add(comment_text);
     update_ui_for_group_membership();
   } else {
-    group_name_to_comments.get(cur_groupname).push(comment_text);
+    group_name_to_comments.get(cur_groupname).add(comment_text);
   }
   update_ui_for_comment_display();
   doc_comment_text.value = "";
@@ -1393,19 +1465,19 @@ function update_ui_for_comment_display() {
     } else {
       // concat comments from all groups this file belongs to + 'just this file'
       for (const groupname of filename_to_groups.get(cur_filename)?.values() ?? []) {
-        for (const comment of group_name_to_comments.get(groupname)) {
+        for (const comment of group_name_to_comments.get(groupname).values()) {
           all_comments.push(comment);
         }
       }
-      for (const comment of filename_to_comments.get(cur_filename) ?? []) {
+      for (const comment of filename_to_comments.get(cur_filename)?.values() ?? []) {
         all_comments.push(comment);
       }
     }
   } else { // for group
     if (current_group_dropdown.selectedIndex === 0) { // group is 'Just this file'
-      all_comments = filename_to_comments.get(cur_filename) ?? [];
+      all_comments = Array.from(filename_to_comments.get(cur_filename)?.values() ?? []);
     } else {
-      all_comments = group_name_to_comments.get(get_selected_groupname());
+      all_comments = Array.from(group_name_to_comments.get(get_selected_groupname())?.values() ?? []);
     }
   }
   // wrap each comment in '' and separate with 2 newlines
@@ -1432,8 +1504,8 @@ function update_ui_for_group_membership() {
     // list files belonging to this group
     // but if group is 'just this file', list files that DO have entries.
     if (current_group_dropdown.selectedIndex === 0) {
-    const es = filename_to_comments.entries();
-    name_iter = Array.from(es).filter((e) => e[1].length !== 0).map((e) => e[0]);
+      const es = filename_to_comments.entries();
+      name_iter = Array.from(es).filter((e) => e[1].size !== 0).map((e) => e[0]);
     } else {
       name_iter = group_to_filenames.get(get_selected_groupname())?.values() ?? [];
     }
