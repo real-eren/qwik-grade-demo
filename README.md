@@ -44,6 +44,7 @@ Special support for Racket files
     - with file-specific identifiers
   - student-specific
   - copy-to-clipboard
+- save and restore sessions as JSON
 
 
 ### stretchgoals / future work:
