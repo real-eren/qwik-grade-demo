@@ -63,10 +63,8 @@ span.rkt-macro {
   display: flex;
 }
 
- <!-- WIP: make the div fill the page properly -->
- <!-- I spent about 3 hours tinkering with CSS to no avail just to learn that you can't put this kind of comment in CSS -->
-  <!-- flex: 1 1 auto; -->
 </style>
+ <!-- WIP: make the div fill the page properly -->
 <div class="hbox" style="padding: 0px 5px 0px 5px;">
 
   <div class="vbox half-wide">
@@ -76,6 +74,10 @@ span.rkt-macro {
         <input id="upload_button" name="files[]" multiple type="file" title="upload files from your computer" />
         <button id="remove_current_file_button" type="button" style="font-size:10px;" title="Clear the current file. Also removes all associated comments">Remove current file</button>
         <button id="remove_all_files_button" type="button" style="font-size:10px;" title="Clear all uploaded files. Also removes all groups and comments">Remove all files</button>
+        <div class="vbox">
+          <button id="import_session_button" type="button" style="font-size:10px;" title="Import session from the current file">Import Session from current file</button>
+          <button id="export_session_button" type="button" style="font-size:10px;" title="Export the current session">Export Session</button>
+        </div>
       </div>
 
       <div class="hbox">
