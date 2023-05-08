@@ -1,0 +1,236 @@
+
+{
+  "group_name_to_comments": [
+    [
+      "everyother: 4",
+      [
+        "second TA's comment"
+      ]
+    ],
+    [
+      "foo-group",
+      [
+        "comment for foo group"
+      ]
+    ],
+    [
+      "group with no files",
+      []
+    ],
+    [
+      "fib: 10",
+      [
+        "forgot to handle zero case",
+        "another comment for fib 10 group",
+        "yet another comment for fib 10 group",
+        "fourth comment for fib 10 group",
+        "multiline \ncomment\nfor \nfib\n10\ngroup"
+      ]
+    ],
+    [
+      "group1",
+      []
+    ],
+    [
+      "group2",
+      []
+    ],
+    [
+      "Mstate-break: 3",
+      [
+        "some bug in Mstate break"
+      ]
+    ],
+    [
+      "merge: 5",
+      [
+        "comment about merge"
+      ]
+    ]
+  ],
+  "filename_to_groups": [
+    [
+      "session.json",
+      []
+    ],
+    [
+      "ex1.rkt",
+      [
+        "fib: 10"
+      ]
+    ],
+    [
+      "just_lang_racket_base.rkt",
+      []
+    ],
+    [
+      "print_hello_world.rkt",
+      []
+    ],
+    [
+      "print_arith_exprs.rkt",
+      []
+    ],
+    [
+      "tiny.rkt",
+      []
+    ],
+    [
+      "ex1.rkt",
+      [
+        "fib: 10",
+        "merge: 5"
+      ]
+    ],
+    [
+      "state.rkt",
+      [
+        "group2"
+      ]
+    ],
+    [
+      "simpleParser.rkt",
+      [
+        "group1",
+        "group2"
+      ]
+    ],
+    [
+      "lex.rkt",
+      []
+    ],
+    [
+      "interpreter.rkt",
+      [
+        "Mstate-break: 3"
+      ]
+    ]
+  ],
+  "group_to_filenames": [
+    [
+      "everyother: 4",
+      [
+        "ex1.rkt"
+      ]
+    ],
+    [
+      "foo-group",
+      []
+    ],
+    [
+      "group with no files",
+      []
+    ],
+    [
+      "fib: 10",
+      [
+        "ex1.rkt"
+      ]
+    ],
+    [
+      "group1",
+      [
+        "simpleParser.rkt"
+      ]
+    ],
+    [
+      "group2",
+      [
+        "simpleParser.rkt",
+        "state.rkt"
+      ]
+    ],
+    [
+      "Mstate-break: 3",
+      [
+        "interpreter.rkt"
+      ]
+    ],
+    [
+      "merge: 5",
+      [
+        "ex1.rkt"
+      ]
+    ]
+  ],
+  "filename_to_comments": [
+    [
+      "session.json",
+      []
+    ],
+    [
+      "ex1.rkt",
+      []
+    ],
+    [
+      "just_lang_racket_base.rkt",
+      []
+    ],
+    [
+      "print_hello_world.rkt",
+      [
+        "comment for print-hello-world"
+      ]
+    ],
+    [
+      "print_arith_exprs.rkt",
+      []
+    ],
+    [
+      "tiny.rkt",
+      []
+    ],
+    [
+      "state.rkt",
+      [
+        "-5, hard-coded state",
+        "-3, uses set!"
+      ]
+    ],
+    [
+      "simpleParser.rkt",
+      []
+    ],
+    [
+      "lex.rkt",
+      []
+    ],
+    [
+      "interpreter.rkt",
+      [
+        "please return values instead of printing"
+      ]
+    ]
+  ],
+  "group_name_to_snippet": [
+    [
+      "everyother: 4",
+      "(define everyother\n  (lambda (lis)\n    (cond\n      [(null? lis)         null]\n      [(null? (cdr lis))   lis]\n      [else                (cons (car lis)\n                                 (everyother  (cddr lis)))])))"
+    ],
+    [
+      "foo-group",
+      "(define foo 1)"
+    ],
+    [
+      "fib: 10",
+      "(define fib\n  (lambda (k)\n    (cond\n      [(zero? k)  k]\n      [(= 1 k)    k]\n      [else       (+ (fib (- k 1))\n                     (fib (- k 2)))])))"
+    ],
+    [
+      "group1",
+      "(define fib\n  (lambda (k)\n    (cond\n      [(zero? k)  k]\n      [(= 1 k)    k]\n      [else       (+ (fib (- k 1))\n                     (fib (- k 2)))])))"
+    ],
+    [
+      "group2",
+      "(define fib\n  (lambda (k)\n    (cond\n      [(zero? k)  k]\n      [(= 1 k)    k]\n      [else       (+ (fib (- k 1))\n                     (fib (- k 2)))])))"
+    ],
+    [
+      "Mstate-break: 3",
+      "(define Mstate-break\n  (lambda (_stmt state conts)\n    ((conts:break conts) state)))"
+    ],
+    [
+      "merge: 5",
+      "(define merge\n  (lambda (lis1 lis2)\n    (cond\n      [(null? lis1)         lis2]\n      [(null? lis2)         lis1]\n      [(<= (car lis1)\n           (car lis2))      (cons (car lis1)\n                                  (merge (cdr lis1) lis2))]\n      [else                 (cons (car lis2)\n                                  (merge lis1 (cdr lis2)))])))"
+    ]
+  ]
+}
+
